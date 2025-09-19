@@ -1,0 +1,20 @@
+.qmd
+.geojson
+.csv
+
+# Composer dependencies
+php/vendor/
+php/composer.lock
+
+# PHPMailer (if installed manually in a folder instead of Composer)
+php/PHPMailer/
+
+# IDE & OS junk
+/.idea/
+/.vscode/
+/*.log
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
