@@ -10,7 +10,7 @@ require './include/connect_db.php';
 
 
 // Fetch all projects
-$stmt = $pdo->query("SELECT * FROM flood_control_proj");
+$stmt = $pdo->query("SELECT * FROM flood_control_proj ORDER BY proj_status, name");
 $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch all average ratings and counts for all projects at once
@@ -156,7 +156,7 @@ $images = [
                             </div>
                             <div class="flex">
                                 <span class="font-medium w-32">Project Cost:</span>
-                                <span><?= htmlspecialchars($proj['proj_cost']) ?></span>
+                                <span>₱ <?= htmlspecialchars($proj['proj_cost']) ?></span>
                             </div>
                             <div class="flex">
                                 <span class="font-medium w-32">Duration:</span>
