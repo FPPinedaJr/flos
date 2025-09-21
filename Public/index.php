@@ -147,14 +147,12 @@ $population_total = $population_total ? number_format($population_total) : 0;
         </div>
     </section>
 
-    t
 
     <!-- Data Visualization Section -->
     <section class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div data-aos="fade-right">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Comprehensive Data Dashboard</h2>
                     <p class="text-lg text-gray-600 mb-6">Our platform aggregates open-source and government datasets
                         from multiple sources to provide
                         a unified view of flood risks and flood control projects,

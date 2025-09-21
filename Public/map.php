@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BgySubMuns Viewer</title>
+    <title>FloS Project | Flood Map</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         #map {
             height: 90vh;
@@ -19,6 +20,14 @@
             text-align: center;
             white-space: normal !important;
         }
+
+        .leaflet-interactive:focus {
+            outline: none;
+        }
+
+        .leaflet-popup:focus {
+            outline: none;
+        }
     </style>
 </head>
 
@@ -26,6 +35,10 @@
     <?php include_once('./include/header.php'); ?>
     <div id="map" class="w-full"></div>
     <?php include_once('./include/footer.php'); ?>
+
+
+
+
 
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -46,6 +59,10 @@
         // Make a new pane for project markers, above polygons
         map.createPane("floodProjPane");
         map.getPane("floodProjPane").style.zIndex = 650; // higher than overlayPane (polygon default 400–600)
+        map.createPane("floodTooltipPane");
+        map.getPane("floodTooltipPane").style.zIndex = 700; // higher than polygons (600)
+        map.getPane("floodTooltipPane").style.pointerEvents = "none"; // so tooltips don't block mouse
+
 
 
         // Monkey patch for Leaflet >= 1.9
@@ -137,7 +154,7 @@
         Promise.all([
             fetch("./csv/intersection_100year.csv").then(r => r.text()),
             fetch("./csv/flood_scores_labeled_kmeans.csv").then(r => r.text()),
-            fetch("./brgy/main.geojson").then(r => r.json())
+            fetch("./brgy/main.json").then(r => r.json())
         ]).then(([csvFloodText, csvScoresText, geojsonData]) => {
             // parse CSVs
             parseFloodCSV(csvFloodText);
@@ -168,36 +185,52 @@
                     const floodInfo = floodLookup[adm] || { floodVars: { "1": 0, "2": 0, "3": 0 } };
                     const scoreInfo = scoreLookup[adm] || { score: 0, category: "Safe" };
 
-                    // Popup content (rounded values; score already rounded in parser)
                     const infoHtml = `
-      <strong>${adm}</strong><br>
-      Low: ${(floodInfo.floodVars?.["1"] ?? 0).toFixed(2)}%<br>
-      Medium: ${(floodInfo.floodVars?.["2"] ?? 0).toFixed(2)}%<br>
-      High: ${(floodInfo.floodVars?.["3"] ?? 0).toFixed(2)}%<br>
-      <strong>Weigted Flood Index:</strong> ${Number(scoreInfo.score).toFixed(2)}<br>
-      <strong>Category:</strong> ${scoreInfo.category}
-    `;
-                    layer.bindPopup(infoHtml, { autoPan: false });
+            <strong>${adm}</strong><br>
+            Low: ${(floodInfo.floodVars?.["1"] ?? 0).toFixed(2)}%<br>
+            Medium: ${(floodInfo.floodVars?.["2"] ?? 0).toFixed(2)}%<br>
+            High: ${(floodInfo.floodVars?.["3"] ?? 0).toFixed(2)}%<br>
+            <strong>Weighted Flood Index:</strong> ${Number(scoreInfo.score).toFixed(2)}<br>
+            <strong>Category:</strong> ${scoreInfo.category}
+        `;
 
-                    // Hover behaviour
-                    layer.on("mouseover", function (e) {
-                        this.setStyle({
+                    // Bind a tooltip (hover-friendly)
+                    layer.bindTooltip(infoHtml, {
+                        sticky: false,       // follows cursor
+                        direction: "top",
+                        opacity: 0.9,
+                        pane: "floodTooltipPane"
+                    });
+
+                    const originalStyle = {
+                        weight: layer.options.weight,
+                        color: layer.options.color,
+                        fillOpacity: layer.options.fillOpacity
+                    };
+
+                    layer.on("mouseover", function () {
+                        layer.setStyle({
                             weight: 3,
                             color: "#000",
                             fillOpacity: 0.9
                         });
                         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                            this.bringToFront();
+                            layer.bringToFront();
                         }
-                        this.openPopup();
+                        layer.openTooltip(); // tooltip instead of popup
                     });
 
-                    layer.on("mouseout", function (e) {
-                        // reset to original style (calls style() above)
-                        geojsonLayer.resetStyle(this);
-                        this.closePopup();
+                    layer.on("mouseout", function () {
+                        layer.setStyle(originalStyle);
+                        layer.closeTooltip();
+                    });
+
+                    layer.on("click", function () {
+                        layer.closeTooltip();
+                        layer.bindPopup(infoHtml, { maxWidth: 250 }).openPopup();
                     });
                 }
+
             }).addTo(map);
 
             // Fit map to layer bounds

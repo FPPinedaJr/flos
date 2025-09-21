@@ -54,7 +54,7 @@ $images = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FloS Project | Flood Control Monitoring</title>
+    <title>FloS Project | Flood Projects</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -103,7 +103,7 @@ $images = [
                     <select id="status"
                         class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="all">All Projects</option>
-                        <option value="ongoing">Ongoing</option>
+                        <option value="not yet started">Not yet started</option>
                         <option value="completed">Completed</option>
                     </select>
                 </div>
@@ -426,18 +426,15 @@ $images = [
                 });
             });
 
-            // Filter functionality
             $("#status").on("change", function () {
-                const status = $(this).val();
+                const status = $(this).val().toLowerCase(); // convert dropdown value to lowercase
                 $(".project-card").each(function () {
-                    const statusElement = $(this).find("span.text-green-600, span.text-yellow-600, span.text-blue-600");
-                    let cardStatus = "";
-                    if (statusElement.hasClass("text-green-600")) cardStatus = "completed";
-                    else if (statusElement.hasClass("text-yellow-600")) cardStatus = "ongoing";
-
+                    const statusElement = $(this).find("span.text-green-600, span.text-yellow-600");
+                    let cardStatus = statusElement.text().trim().toLowerCase(); // get the text and lowercase it
                     $(this).toggle(status === "all" || status === cardStatus);
                 });
             });
+
         });
     </script>
 
