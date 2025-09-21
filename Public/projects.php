@@ -103,8 +103,8 @@ $images = [
                     <select id="status"
                         class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         <option value="all">All Projects</option>
-                        <option value="not yet started">Not yet started</option>
-                        <option value="completed">Completed</option>
+                        <option value="Not Yet Started">Not yet started</option>
+                        <option value="Completed">Completed</option>
                     </select>
                 </div>
             </div>
@@ -120,7 +120,7 @@ $images = [
                 $avgScore = $ratingData['avg_score'];
                 $totalVotes = $ratingData['total_votes'];
                 ?>
-                <div class="project-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300"
+                <div class="project-card bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 <?= $proj['proj_status'] === 'Completed' ? 'completed-proj' : 'not-yet-started-proj' ?> "
                     data-aos="fade-up">
                     <div class="h-48 bg-blue-500 relative overflow-hidden">
                         <img src="<?= htmlspecialchars($img) ?>" alt="Project Image" class="w-full h-full object-cover">
@@ -426,13 +426,20 @@ $images = [
                 });
             });
 
-            $("#status").on("change", function () {
-                const status = $(this).val().toLowerCase(); // convert dropdown value to lowercase
-                $(".project-card").each(function () {
-                    const statusElement = $(this).find("span.text-green-600, span.text-yellow-600");
-                    let cardStatus = statusElement.text().trim().toLowerCase(); // get the text and lowercase it
-                    $(this).toggle(status === "all" || status === cardStatus);
-                });
+            $('#status').on('change', function () {
+                const statusFilter = $(this).val();
+
+                if (statusFilter == 'all') {
+                    $(".completed-proj").removeClass('hidden');
+                    $(".not-yet-started-proj").removeClass('hidden');
+                } else if (statusFilter == 'Completed') {
+                    $(".completed-proj").removeClass('hidden');
+                    $(".not-yet-started-proj").addClass('hidden');
+                } else if (statusFilter == 'Not Yet Started') {
+                    $(".completed-proj").addClass('hidden');
+                    $(".not-yet-started-proj").removeClass('hidden');
+                }
+
             });
 
         });
