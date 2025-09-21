@@ -424,6 +424,8 @@ $images = [
                     const title = $(this).find("h3").text().toLowerCase();
                     $(this).toggle(title.includes(searchTerm));
                 });
+
+                AOS.refresh();
             });
 
             $('#status').on('change', function () {
@@ -439,6 +441,9 @@ $images = [
                     $(".completed-proj").addClass('hidden');
                     $(".not-yet-started-proj").removeClass('hidden');
                 }
+
+                AOS.refresh();
+
 
             });
 
